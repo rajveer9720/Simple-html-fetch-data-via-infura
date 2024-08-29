@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BSC Contract Interaction</title>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script> -->
+  </head>
+  <body>
+    <h1>BSC Contract Interaction</h1>
+    <p>Contract Balance: <span id="contract-balance">Loading...</span></p>
+    <p>Total Users: <span id="total-users">Loading...</span></p>
+    <p>INVEST_MAX_AMOUNT: <span id="max-amount">Loading....</span></p>
+    <p>Withdrawn: <span id="withdrawn">Loading....</span></p>
+  <p>Total Deposit: <span id ="totalDeposits">Loading....</span></p>
+  <p>refRewards: <span id ="refRewards">Loading....</span></p>
+
+  
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.5/dist/web3.min.js"></script>
+    <script>
+      const infuraUrl =
+        "https://bsc-mainnet.infura.io/v3/54342a1556274e579ef82ed1022b7a7c";
+      const contractAddress = "0x22B9d593eEaaAC4DA6eB7B48C05ceAe34cCDda3E";
+      const contractABI = [
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "projectAddr",
+              type: "address",
+            },
+            {
+              internalType: "address payable",
+              name: "devAddr",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "start",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "NewDeposit",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "Newbie",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "referrer",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "referral",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "level",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "RefBonus",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "Withdrawn",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "BASE_PERCENT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "CONTRACT_BALANCE_STEP",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "DEV_FEE",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "INVEST_MAX_AMOUNT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "INVEST_MIN_AMOUNT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "MAX_DEPOSITS",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "PERCENTS_DIVIDER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "PERCENTS_DIVIDER_REFERRAL",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "PROJECT_FEE",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "REFERRAL_PERCENTS",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "TIME_STEP",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "devAddress",
+          outputs: [
+            {
+              internalType: "address payable",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getContractBalance",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getContractBalanceRate",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getContractInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserAmountOfDeposits",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserAvailable",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserCheckpoint",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "index",
+              type: "uint256",
+            },
+          ],
+          name: "getUserDepositInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserDividends",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserDownlineCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserPercentRate",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserReferralBonus",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserReferralTotalBonus",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserReferralWithdrawn",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserReferrer",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserTotalDeposits",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "getUserTotalWithdrawn",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "referrer",
+              type: "address",
+            },
+          ],
+          name: "invest",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+          ],
+          name: "isActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "status",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "projectAddress",
+          outputs: [
+            {
+              internalType: "address payable",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "userAddress",
+              type: "address",
+            },
+            {
+              internalType: "bool",
+              name: "status",
+              type: "bool",
+            },
+          ],
+          name: "setAntiWhale",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "startUNIX",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "totalDeposits",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "totalInvested",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "totalReferrals",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "totalUsers",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "totalWithdrawn",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "withdraw",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ];
+
+      const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+      const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+      async function fetchContractData() {
+        try {
+          const balance = await contract.methods.getContractBalance().call();
+          const totalUsers = await contract.methods.totalUsers().call();
+          const withdrawn = await contract.methods.totalWithdrawn().call();
+          const totalDeposits = await contract.methods.totalDeposits().call();
+          const userReward= await contract.methods.totalReferrals().call();
+         
+          console.log("Total Withdrawn:", withdrawn);
+          console.log("Total reward:", userReward);
+
+          const Max = await contract.methods.INVEST_MAX_AMOUNT().call();
+          document.getElementById("contract-balance").textContent =
+            web3.utils.fromWei(balance, "ether") + " BNB";
+          document.getElementById("total-users").textContent = totalUsers;
+          document.getElementById("max-amount").textContent = Max;
+          document.getElementById('totalDeposits').textContent =totalDeposits;  
+          document.getElementById('refRewards').textContent = userReward;
+
+            document.getElementById('withdrawn').textContent = withdrawn; 
+
+        } catch (error) {
+          console.error("Error fetching contract data:", error);
+        }
+      }
+
+      window.onload = fetchContractData;
+    </script>
+  </body>
+</html>

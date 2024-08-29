@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.1/dist/web3.min.js"></script>
+    <script src="app.js" defer></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Contract Card -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-5 col-12 text-xl-end col-lg-10 offset-lg-1 offset-xl-0">
+                    <div class="contract-card mt-4">
+                        <div class="card-content">
+                            <h3>Contract balance</h3>
+                            <p id="contractBalance">0.000<span>BNB</span></p>
+                            <h3>Total withdrawn</h3>
+                            <p id="totalWithdrawn">0.000<span>BNB</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Section -->
+    <section class="our-best-features-wrapper section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="features-card-item style-1">
+                        <h4>Deposited</h4>
+                        <h5 id="totalDeposits">0.000</h5>
+                     
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="features-card-item style-1">
+                        <h4>Users</h4>
+                        <h5 id="totalUsers">0</h5>
+                     
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="features-card-item style-1">
+                        <h4>Withdrawn</h4>
+                        <h5 id="totalWithdrawnFeature">0.000</h5>
+                     
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="features-card-item style-1">
+                        <h4>Ref Rewards</h4>
+                        <h5 id="refRewards">0.000</h5>
+                     
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deposit Section -->
+    <section class="deposit-section">
+        <div class="container">
+            <h1>Deposit</h1>
+            <div class="row">
+                <!-- Left Section for Deposit Input -->
+                <div class="col-md-4">
+                    <h2>Make New</h2>
+                    <div class="deposit-input">
+                        <input type="number" id="depositAmount" placeholder="0" min="0.05" max="1000" step="0.01">
+                        <span>BNB</span>
+                        <button id="makeDeposit">Make Deposit</button>
+                    </div>
+                    <p class="note">* minimum 0.05 BNB &nbsp;&nbsp; ** maximum 1000 BNB</p>
+                </div>
+                <!-- Per Day Income -->
+                <div class="col-md-4">
+                    <div class="card per-day">
+                        <h3>Per Day</h3>
+                        <p id="perDayIncome">0.000 BNB</p>
+                    </div>
+                </div>
+                <!-- Total Income -->
+                <div class="col-md-4">
+                    <div class="card total-income">
+                        <h3>Total Income</h3>
+                        <p id="totalIncome">0.000 BNB</p>
+                        <p class="note">*Withdrawal at any time you want!</p>
+                    </div>
+                </div>
+                <!-- Percent Rate -->
+                <div class="col-md-4">
+                    <div class="card percent-rate">
+                        <h3>Percent rate</h3>
+                        <p id="percentRate">1% per day</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Token Section -->
+    <section class="content-block section-padding overflow-hidden">
+        <div class="info_referral main_box">
+            <div class="user_column">
+                <div class="head">
+                    <h3>User Info</h3>
+                </div>
+                <div class="income">
+                    <div class="action">
+                        <button class="button" id="withdraw">Withdraw</button>
+                    </div>
+                    <h3>Your Income</h3>
+                    <div class="balance available-holder">
+                        <p id="yourIncome">0<strong>.000</strong> <em>BNB</em></p>
+                        <span>Withdrawable balance</span>
+                    </div>
+                </div>
+                <div class="cards_box row">
+                    <div class="card col">
+                        <div class="name">
+                            <span>Total Deposits</span>
+                        </div>
+                        <div class="sum2" id="totalDepositsCard">0<span>.000</span></div>
+                        <div class="type">BNB</div>
+                    </div>
+                    <div class="card">
+                        <div class="name">
+                            <span>Total Profit</span>
+                        </div>
+                        <div class="sum2" id="totalProfitCard">0<span>.000</span></div>
+                        <div class="type">BNB</div>
+                    </div>
+                    <div class="card withdrawn">
+                        <div class="name">
+                            <span>Withdrawn</span>
+                        </div>
+                        <div class="sum2" id="totalWithdrawnCard">0<span>.000</span></div>
+                        <div class="type">BNB</div>
+                    </div>
+                    <div class="card">
+                        <div class="name">
+                            <span>Percent Rate</span>
+                        </div>
+                        <div class="sum" id="percentRateCard">0.00<span>%</span></div>
+                        <div class="type">per day</div>
+                    </div>
+                </div>
+            </div>
+            <div class="referral_column">
+                <div class="head">
+                    <h3>Referral</h3>
+                </div>
+                <div class="your_wallet">
+                    <div class="name"><span>Your Link</span></div>
+                    <div class="address">
+                        <span>You will get your ref link after investing</span>
+                        <button id="copyLink"><img src="img/copy.svg" width="20" height="21" alt=""></button>
+                    </div>
+                    <div class="data">
+                        <div class="total_dep">
+                            <p>Total Reward</p>
+                            <div id="totalReward">0<span>.000</span></div>
+                            <em>BNB</em>
+                        </div>
+                        <div class="total_ref">
+                            <p>Total Referral</p>
+                            <div id="totalReferral">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="levels">
+                    <div class="lvl lvl1">
+                        <div class="head">
+                            <span>1 lvl</span><em>10%</em>
+                        </div>
+                        <h3 id="level1">0</h3>
+                    </div>
+                    <div class="lvl lvl2">
+                        <div class="head">
+                            <span>2 lvl</span><em>4%</em>
+                        </div>
+                        <h3 id="level2">0</h3>
+                    </div>
+                    <div class="lvl lvl3">
+                        <div class="head">
+                            <span>3 lvl</span><em>3%</em>
+                        </div>
+                        <h3 id="level3">0</h3>
+                    </div>
+                </div>
+                <div class="levels">
+                    <div class="lvl lvl4">
+                        <div class="head">
+                            <span>4 lvl</span><em>2%</em>
+                        </div>
+                        <h3 id="level4">0</h3>
+                    </div>
+                    <div class="lvl lvl5">
+                        <div class="head">
+                            <span>5 lvl</span><em>1%</em>
+                        </div>
+                        <h3 id="level5">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
